@@ -3,6 +3,9 @@ from typing import Callable, Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 from muscima.io import CropObject
+import os
+from PIL import Image
+import random
 
 from smashcima.geometry import Point, Vector2
 from smashcima.scene import ComposedGlyph, Glyph, LineGlyph, ScenePoint, Sprite
@@ -244,6 +247,7 @@ def sort_components_by_proximity_to_point(
 
 
 def get_full_noteheads(page: MppPage) -> List[Glyph]:
+    print("noteheadfull dolentes")
     return _crop_objects_to_single_sprite_glyphs(
         crop_objects=[
             o for o in page.crop_objects
@@ -254,8 +258,64 @@ def get_full_noteheads(page: MppPage) -> List[Glyph]:
         label=SmuflLabels.noteheadBlack.value
     )
 
+def get_full_noteheads_images() -> List[Glyph]:
+    print("noteheadfull bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'noteheadfull')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(25, 35)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.noteheadBlack.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+    
+
 
 def get_empty_noteheads(page: MppPage) -> List[Glyph]:
+    print("noteheadwhole dolentes")
     return _crop_objects_to_single_sprite_glyphs(
         crop_objects=[
             o for o in page.crop_objects
@@ -266,8 +326,62 @@ def get_empty_noteheads(page: MppPage) -> List[Glyph]:
         label=SmuflLabels.noteheadWhole.value
     )
 
+def get_empty_noteheads_images() -> List[Glyph]:
+    print("noteheadwhole bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'notewhole')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(25, 35)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.noteheadWhole.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
 
 def get_whole_rests(page: MppPage) -> List[Glyph]:
+    print("wholerests dolentes")
     glyphs = _get_symbols_centered_on_line(
         page,
         clsname="whole_rest",
@@ -284,7 +398,64 @@ def get_whole_rests(page: MppPage) -> List[Glyph]:
     return glyphs
 
 
+def get_whole_rests_images() -> List[Glyph]:
+    
+    print("wholerests bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'halfwholerest')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_width = random.randint(30, 40)
+                notehead_height = int((notehead_width / original_width) * original_height)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.restWhole.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+
+
 def get_half_rests(page: MppPage) -> List[Glyph]:
+    print("halfrests dolentes")
     glyphs = _get_symbols_centered_on_line(
         page,
         clsname="half_rest",
@@ -299,9 +470,66 @@ def get_half_rests(page: MppPage) -> List[Glyph]:
     #     if origin.y < -1.5 or origin.y > 0.5:
     #         glyph.sprites[0].bitmap_origin = Point(origin.x, 1.0)
     return glyphs
+    
+
+def get_half_rests_images() -> List[Glyph]:
+    
+    print("halfrests bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'halfwholerest')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_width = random.randint(30, 40)
+                notehead_height = int((notehead_width / original_width) * original_height)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 1)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.restHalf.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
 
 
 def get_quarter_rests(page: MppPage) -> List[Glyph]:
+    print("quarterrests dolentes")
     return _get_symbols_centered_on_line(
         page,
         clsname="quarter_rest",
@@ -310,8 +538,64 @@ def get_quarter_rests(page: MppPage) -> List[Glyph]:
         when_center_outside_recenter=True
     )
 
+def get_quarter_rests_images() -> List[Glyph]:
+
+    print("quarterrests bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'quarterrest')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(50, 70)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.restQuarter.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+
 
 def get_eighth_rests(page: MppPage) -> List[Glyph]:
+    print("eighthrests dolentes")
     return _get_symbols_centered_on_line(
         page,
         clsname="8th_rest",
@@ -320,8 +604,65 @@ def get_eighth_rests(page: MppPage) -> List[Glyph]:
         when_center_outside_recenter=True
     )
 
+def get_eighth_rests_images() -> List[Glyph]:
+    
+    print("eighthrests bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'eighthrest')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(50, 70)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.rest8th.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+
+
 
 def get_sixteenth_rests(page: MppPage) -> List[Glyph]:
+    print("sixteenthrests dolents")
     return _get_symbols_centered_on_line(
         page,
         clsname="16th_rest",
@@ -331,7 +672,64 @@ def get_sixteenth_rests(page: MppPage) -> List[Glyph]:
     )
 
 
+def get_sixteenth_rests_images() -> List[Glyph]:
+    
+    print("sixteenthrests bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'sixteenthrest')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(50, 70)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.rest16th.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+
+
 def get_normal_barlines(page: MppPage) -> List[Glyph]:
+    print("barlines dolentes")
     _EXCLUDE = set([
         # this is a double barline, accidentally annotated as simple
         "MUSCIMA-pp_1.0___CVC-MUSCIMA_W-32_N-09_D-ideal___70"
@@ -347,8 +745,66 @@ def get_normal_barlines(page: MppPage) -> List[Glyph]:
         label=SmuflLabels.barlineSingle.value
     )
 
+def get_normal_barlines_images() -> List[Glyph]:
+    print("barlines bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'barline')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(110, 130)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                
+                if(notehead_width < 2):
+                    continue
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.barlineSingle.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+
 
 def get_g_clefs(page: MppPage) -> List[Glyph]:
+    print("gclefs dolentes")
     return _get_symbols_centered_on_line(
         page,
         clsname="g-clef",
@@ -356,8 +812,63 @@ def get_g_clefs(page: MppPage) -> List[Glyph]:
         line_from_top=3
     )
 
+def get_g_clefs_images() -> List[Glyph]:
+    
+    print("gclefs bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'gclef')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(120, 160)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.6)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.gClef.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
 
 def get_f_clefs(page: MppPage) -> List[Glyph]:
+    print("fclefs dolentes")
     return _get_symbols_centered_on_line(
         page,
         clsname="f-clef",
@@ -365,8 +876,64 @@ def get_f_clefs(page: MppPage) -> List[Glyph]:
         line_from_top=1
     )
 
+def get_f_clefs_images() -> List[Glyph]:
+    
+    print("fclefs bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'fclef')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(120, 160)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.4)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                glyph = Glyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmuflLabels.fClef.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite]
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
+
 
 def get_c_clefs(page: MppPage) -> List[Glyph]:
+    print("cclef dolentes")
     return _crop_objects_to_single_sprite_glyphs(
         crop_objects=[
             o for o in page.crop_objects
@@ -375,6 +942,61 @@ def get_c_clefs(page: MppPage) -> List[Glyph]:
         page=page,
         label=SmuflLabels.cClef.value
     )
+
+def get_c_clefs_images() -> List[Glyph]:
+    print("cclefs bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    symbols = ['cclefb', 'cclefk']
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        for symbol in symbols:
+            notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), symbol)
+            if os.path.exists(notehead_path):
+                files_notehead = os.listdir(notehead_path)
+                nfiles_notehead = len(files_notehead)
+
+                #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+                # SEU INDEX SIGUI i-nfiles_simbol
+                #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+                for i in range(nfiles_notehead):
+
+                    image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                    original_width, original_height = image_notehead.size
+                    notehead_height = random.randint(120, 160)
+                    notehead_width = int((notehead_height / original_height) * original_width)
+                    image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                    image_array = np.array(image_notehead)
+                    threshold = 128
+                    binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                    space = AffineSpace()
+                    sprite = Sprite(
+                        space=space,
+                        bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                        bitmap_origin=(
+                            Point(0.5, 0.5)
+                        ),
+                        dpi=MUSCIMA_PP_DPI
+                    )
+                    glyph = Glyph(
+                        space=space,
+                        region=Glyph.build_region_from_sprites_alpha_channel(
+                            label=SmuflLabels.cClef.value,
+                            sprites=[sprite]
+                        ),
+                        sprites=[sprite]
+                    )
+                    MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                    glyphs.append(glyph)
+
+    return glyphs
 
 
 def get_stems(page: MppPage) -> List[LineGlyph]:
@@ -391,6 +1013,7 @@ def get_stems(page: MppPage) -> List[LineGlyph]:
 
 
 def get_beams(page: MppPage) -> List[LineGlyph]:
+    print("beams dolentes")
     return _crop_objects_to_line_glyphs(
         crop_objects=[
             o for o in page.crop_objects
@@ -402,6 +1025,77 @@ def get_beams(page: MppPage) -> List[LineGlyph]:
         horizontal_line=True, # horizontal line
         in_increasing_direction=True # pointing to the right
     )
+
+def get_beams_images() -> List[Glyph]:
+    print("beams bones")
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    items = []
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), 'beam')
+        if os.path.exists(notehead_path):
+            files_notehead = os.listdir(notehead_path)
+            nfiles_notehead = len(files_notehead)
+
+            #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+            # SEU INDEX SIGUI i-nfiles_simbol
+            #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+            for i in range(nfiles_notehead):
+
+                image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                original_width, original_height = image_notehead.size
+                notehead_height = random.randint(25, 35)
+                notehead_width = int((notehead_height / original_height) * original_width)
+                image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                image_array = np.array(image_notehead)
+                threshold = 128
+                binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                # extract endpoints
+                blurred_mask = cv2.medianBlur(binary_notehead, 5) # smooth out (5x5 window)
+                points = get_line_endpoints(blurred_mask)
+                points.sort(key=lambda p: p.x)
+                if len(points) < 2:
+                    continue
+
+                space = AffineSpace()
+                sprite = Sprite(
+                    space=space,
+                    bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                    bitmap_origin=(
+                        Point(0.5, 0.5)
+                    ),
+                    dpi=MUSCIMA_PP_DPI
+                )
+                start_point = ScenePoint(
+                    point=sprite.get_pixels_to_origin_space_transform().apply_to(points[0]),
+                    space=space
+                )
+                end_point = ScenePoint(
+                    point=sprite.get_pixels_to_origin_space_transform().apply_to(points[-1]),
+                    space=space
+                )
+                glyph = LineGlyph(
+                    space=space,
+                    region=Glyph.build_region_from_sprites_alpha_channel(
+                        label=SmashcimaLabels.beam.value,
+                        sprites=[sprite]
+                    ),
+                    sprites=[sprite],
+                    start_point=start_point,
+                    end_point=end_point
+                )
+                MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                glyphs.append(glyph)
+
+    return glyphs
 
 
 def get_beam_hooks(page: MppPage) -> List[LineGlyph]:
@@ -594,6 +1288,7 @@ def get_staccato_dots(page: MppPage) -> List[Glyph]:
 
 
 def get_accidentals(page: MppPage) -> List[Glyph]:
+    print("accidentals dolentes")
     _LABEL_LOOKUP: Dict[str, str] = {
         "sharp": SmuflLabels.accidentalSharp.value,
         "flat": SmuflLabels.accidentalFlat.value,
@@ -689,6 +1384,82 @@ def get_accidentals(page: MppPage) -> List[Glyph]:
         )
         MppGlyphMetadata.stamp_glyph(glyph, page, o.objid)
         glyphs.append(glyph)
+
+    return glyphs
+
+
+def get_accidentals_images() -> List[Glyph]:
+    print("accidentals bones")
+    _LABEL_LOOKUP: Dict[str, str] = {
+        "accidentalsharp": SmuflLabels.accidentalSharp.value,
+        "accidentalflat": SmuflLabels.accidentalFlat.value,
+        "accidentalnatural": SmuflLabels.accidentalNatural.value,
+        "accidentaldoublesharp": SmuflLabels.accidentalDoubleSharp.value,
+
+        # NOTE: there are no double-flats in MUSCIMA++
+        "double_flat": SmuflLabels.accidentalDoubleFlat.value
+    }
+
+    og_path = '/home/gasbert/Desktop/Projecte_GANs/Datasets/Handwritten/'
+    base_dataset = "datasets_base"
+    augmented_dataset = "datasets_rot_flip"    
+
+    actual_path = os.path.join(og_path, base_dataset)
+
+    symbols = ["accidentalsharp", "accidentalflat", "accidentalnatural", "accidentaldoublesharp"]
+    glyphs: List[Glyph] = []
+
+    for dataset_fold in os.listdir(actual_path):
+        for symbol in symbols:
+            notehead_path = os.path.join(os.path.join(actual_path, dataset_fold), symbol)
+            if os.path.exists(notehead_path):
+                files_notehead = os.listdir(notehead_path)
+                nfiles_notehead = len(files_notehead)
+
+                #EN ALGUN MOMENT FER QUE AGAFI EL MAXIM (AIXI APROFITO TOTES LES IMATGES) I QUE PELS ALTRES SIMBOLS A LA QUE PASSI D'AQUEST MAXIM, QUE EL
+                # SEU INDEX SIGUI i-nfiles_simbol
+                #ENCARA QUE COM TINDRE QUE FER LO DEL CLUSTERING NO TE MOLT SENTIT FER-HO ENCARA
+                for i in range(nfiles_notehead):
+
+                    image_notehead = Image.open(os.path.join(notehead_path, files_notehead[i])).convert('L')
+
+                    original_width, original_height = image_notehead.size
+                    notehead_height = random.randint(55, 65)
+                    notehead_width = int((notehead_height / original_height) * original_width)
+                    image_notehead = image_notehead.resize((notehead_width, notehead_height))
+                    image_array = np.array(image_notehead)
+                    threshold = 128
+                    binary_notehead = (image_array > threshold).astype(np.uint8)
+
+                    space = AffineSpace()
+                    if symbol in ["accidentalflat", "accidentaldoubleflat"]:
+                        sprite = Sprite(
+                        space=space,
+                        bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                        bitmap_origin=(
+                            Point(0.5, 0.75)
+                        ),
+                        dpi=MUSCIMA_PP_DPI
+                    )
+                    else:
+                        sprite = Sprite(
+                        space=space,
+                        bitmap=_mpp_mask_to_sprite_bitmap(binary_notehead),
+                        bitmap_origin=(
+                            Point(0.5, 0.5)
+                        ),
+                        dpi=MUSCIMA_PP_DPI
+                    )
+                    glyph = Glyph(
+                        space=space,
+                        region=Glyph.build_region_from_sprites_alpha_channel(
+                            label=_LABEL_LOOKUP[symbol],
+                            sprites=[sprite]
+                        ),
+                        sprites=[sprite]
+                    )
+                    MppGlyphMetadata.stamp_glyph_image(glyph, int(i))
+                    glyphs.append(glyph)
 
     return glyphs
 

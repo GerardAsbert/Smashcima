@@ -48,6 +48,16 @@ class MppGlyphMetadata(SceneObject):
             mpp_piece=mpp_page.mpp_piece,
             mpp_numeric_objid=numeric_objid
         )
+
+    def stamp_glyph_image(glyph: Glyph, numeric_objid: int):
+        # just create an instance and that's it
+        # the glyph's inlinks will hold on to the instance
+        MppGlyphMetadata(
+            glyph=glyph,
+            mpp_writer=1,
+            mpp_piece=1,
+            mpp_numeric_objid=numeric_objid
+        )
     
     @classmethod
     def of_glyph(cls, glyph: Glyph):

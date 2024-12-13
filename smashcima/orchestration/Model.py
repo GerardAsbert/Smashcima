@@ -5,8 +5,10 @@ from typing import Generic, Optional, TypeVar
 from smashcima.assets.AssetRepository import AssetRepository
 from smashcima.synthesis.style.Styler import Styler
 
-from .Container import Container
+import importlib.util
+import sys
 
+from . import Container
 
 T = TypeVar("T")
 """The scene type the model returns (does NOT need to inherit from `Scene`)"""

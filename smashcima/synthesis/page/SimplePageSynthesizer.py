@@ -26,12 +26,12 @@ class PageSetup:
 HANDWRITTEN_PAGE_SETUP = PageSetup(
     # inspired by:
     # https://www.digitalniknihovna.cz/mzk/view/uuid:378147a5-3d3f-47f0-9f31-80740052e86c?page=uuid:74c8e808-1dd3-4ff7-bea5-658b7d4cb1a5
-    size = Vector2(250, 350),
+    size = Vector2(450, 450),
     padding_top=20,
     padding_bottom=40,
     padding_left=10,
     padding_right=10,
-    staff_count=13
+    staff_count=12
 )
 
 
@@ -56,7 +56,8 @@ class SimplePageSynthesizer:
         self.stafflines_synthesizer = stafflines_synthesizer
         self.paper_synthesizer = paper_synthesizer
 
-        self.page_setup = MUSESCORE_PAGE_SETUP
+        #self.page_setup = MUSESCORE_PAGE_SETUP
+        self.page_setup = HANDWRITTEN_PAGE_SETUP
 
     def synthesize_page(self, page_origin: Vector2) -> Page:
         page_space = AffineSpace(

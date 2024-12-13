@@ -11,7 +11,7 @@ from smashcima.scene import AffineSpace, Page, Scene, Score
 from smashcima.synthesis import (BeamStemSynthesizer, ColumnLayoutSynthesizer,
                                  LineSynthesizer, MuscimaPPGlyphSynthesizer,
                                  MuscimaPPLineSynthesizer,
-                                 MuscimaPPStyleDomain, MzkPaperStyleDomain,
+                                 MzkPaperStyleDomain,
                                  MzkQuiltingPaperSynthesizer,
                                  NaiveLineSynthesizer,
                                  NaiveStafflinesSynthesizer, PaperSynthesizer,
@@ -21,10 +21,17 @@ from smashcima.synthesis import (BeamStemSynthesizer, ColumnLayoutSynthesizer,
                                  GlyphSynthesizer)
 from smashcima.synthesis.style.MzkPaperStyleDomain import Patch
 
+import importlib.util
+import sys
+
 from .Model import Model
 
+from smashcima.synthesis.style import TweakedMuscimaPPStyleDomain
+from smashcima.synthesis.glyph import TweakedMuscimaPPLineSynthesizer
+from smashcima.synthesis.glyph import TweakedMuscimaPPGlyphSynthesizer
 
-class BaseHandwrittenScene(Scene):
+
+class TweakedHandwrittenScene(Scene):
     """Scene synthesized by the `BaseHandwrittenModel`"""
     def __init__(
         self,
@@ -61,7 +68,7 @@ class BaseHandwrittenScene(Scene):
         return self.renderer.render(page.view_box)
 
 
-class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
+class TweakedHandwrittenModel(Model[TweakedHandwrittenScene]):
     """Synthesizes handwritten pages of music notation.
 
     This model provides similar functionality as MuseScore when it comes
@@ -78,13 +85,13 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
         super().register_services()
         c = self.container
         
+        c.type(TweakedMuscimaPPStyleDomain)
         c.type(ColumnLayoutSynthesizer)
         c.type(BeamStemSynthesizer)
         c.interface(StafflinesSynthesizer, NaiveStafflinesSynthesizer)
-        c.interface(GlyphSynthesizer, MuscimaPPGlyphSynthesizer)
-        c.interface(LineSynthesizer, MuscimaPPLineSynthesizer)
+        c.interface(GlyphSynthesizer, TweakedMuscimaPPGlyphSynthesizer)
+        c.interface(LineSynthesizer, TweakedMuscimaPPLineSynthesizer)
         c.type(SimplePageSynthesizer)
-        c.type(MuscimaPPStyleDomain)
         c.type(MzkPaperStyleDomain)
         # c.interface(PaperSynthesizer, SolidColorPaperSynthesizer)
         c.interface(PaperSynthesizer, MzkQuiltingPaperSynthesizer)
@@ -96,15 +103,15 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
         self.layout_synthesizer = c.resolve(ColumnLayoutSynthesizer)
         self.page_synthesizer = c.resolve(SimplePageSynthesizer)
 
-        self.mpp_style_domain = c.resolve(MuscimaPPStyleDomain)
+        self.mpp_style_domain = c.resolve(TweakedMuscimaPPStyleDomain)
         self.mzk_paper_style_domain = c.resolve(MzkPaperStyleDomain)
     
     def configure_services(self):
         super().configure_services()
         
         self.styler.register_domain(
-            MuscimaPPStyleDomain,
-            self.container.resolve(MuscimaPPStyleDomain)
+            TweakedMuscimaPPStyleDomain,
+            self.container.resolve(TweakedMuscimaPPStyleDomain)
         )
         self.styler.register_domain(
             MzkPaperStyleDomain,
@@ -118,7 +125,7 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
         format: Optional[str] = None,
         score: Optional[Score] = None,
         clone_score: bool = False
-    ) -> BaseHandwrittenScene:
+    ) -> TweakedHandwrittenScene:
         """Synthesizes handwritten pages given a musical content.
         
         The musical content can be provided as a file path, string data,
@@ -146,7 +153,7 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
         # synthesis core (the call() method) is invoked, this method is where
         # you can do any post-processing and updates to the model state.
         # For example, the Model base class sets the self.scene property here.
-        print("entra base model")
+
         if score is None:
             score = self.load_score(
                 file=file,
@@ -174,7 +181,7 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
             format=format
         )
 
-    def call(self, score: Score) -> BaseHandwrittenScene:
+    def call(self, score: Score) -> TweakedHandwrittenScene:
         # NOTE: This method is where the synthesis itself happens and
         # the resulting scene is constructed. This method should not modify
         # the state of the model instance, these modifications should happen
@@ -190,6 +197,8 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
         next_page_origin = Vector2(0, 0)
         _PAGE_SPACING = 10 # 1cm
         while next_measure_index < score.measure_count:
+            print("Page")
+            print(next_measure_index)
             # prepare the next page of music
             page = self.page_synthesizer.synthesize_page(next_page_origin)
             page.space.parent_space = root_space
@@ -209,7 +218,7 @@ class BaseHandwrittenModel(Model[BaseHandwrittenScene]):
             next_measure_index = systems[-1].last_measure_index + 1
 
         # construct the complete scene and return
-        return BaseHandwrittenScene(
+        return TweakedHandwrittenScene(
             root_space=root_space,
             score=score,
             mpp_writer=self.mpp_style_domain.current_writer,

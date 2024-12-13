@@ -1,3 +1,5 @@
 from .MuscimaPPGlyphSynthesizer import MuscimaPPGlyphSynthesizer
 from .MuscimaPPLineSynthesizer import MuscimaPPLineSynthesizer
 from .NaiveLineSynthesizer import NaiveLineSynthesizer
+from .TweakedMuscimaPPGlyphSynthesizer import TweakedMuscimaPPGlyphSynthesizer
+from .TweakedMuscimaPPLineSynthesizer import TweakedMuscimaPPLineSynthesizer

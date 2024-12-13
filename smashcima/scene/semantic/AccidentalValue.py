@@ -10,6 +10,6 @@ class AccidentalValue(str, Enum):
     doubleSharp = "double-sharp"
 
     # sharpSharp = "sharp-sharp"
-    # flatFlat = "flat-flat"
+    #flatFlat = "flat-flat"
     # naturalSharp = "natural-sharp"
     # naturalFlat = "natural-flat"
