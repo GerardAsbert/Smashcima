@@ -19,20 +19,21 @@ from smashcima.orchestration import BaseHandwrittenModel
 
 model = BaseHandwrittenModel()
 
-for file in os.listdir("/data/gasbert/datasets/datasets/generation_data/Mashcima/Writer01"):
+'''for file in os.listdir("/data/gasbert/datasets/datasets/generation_data/Mashcima/Writer01"):
     filename_mxml = file[:-3] + "musicxml"
     if filename_mxml == "FMT_C47_0001b.01.musicxml":
         scene = model("/data/gasbert/datasets/datasets/generation_data/TranscriptionsSMashcima/" + filename_mxml)
         for i, page in enumerate(scene.pages):
             bitmap = scene.render(page)
             #cv2.imwrite(f"page_{i}_quarterrests.png", bitmap)
-            cv2.imwrite("dolores_partitures_wholepages/" + file, bitmap)
+            cv2.imwrite("dolores_partitures_wholepages/" + file, bitmap)'''
 
 
 
-'''scene = model("test1.musicxml")
+
+scene = model("/data2fast/users/gasbert/datasets/generation_data/Transcriptions/UAB_LICEU_222570.059.08.musicxml")
 
 for i, page in enumerate(scene.pages):
     bitmap = scene.render(page)
     #cv2.imwrite(f"page_{i}_quarterrests.png", bitmap)
-    cv2.imwrite(f"test1_beams.png", bitmap)'''
+    cv2.imwrite(f"prova_uab_liceu.png", bitmap)
