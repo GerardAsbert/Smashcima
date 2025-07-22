@@ -1,6 +1,6 @@
+# Custom Smashcima – Synthesizing Scores from Custom Symbols
+
 [![License Apache 2.0](https://badgen.net/badge/license/apache2.0/blue)](https://github.com/OMR-Research/Smashcima/blob/main/LICENSE)
-[![PyPI version](https://badge.fury.io/py/smashcima.svg)](https://pypi.org/project/smashcima/)
-[![Downloads](https://static.pepy.tech/badge/smashcima)](https://pepy.tech/project/smashcima)
 ![Python Version](https://badgen.net/badge/python/3.8+/cyan)
 
 <div align="center">
@@ -8,86 +8,77 @@
     <img src="docs/assets/smashcima-logo.svg" width="600px">
     <br/>
     <br/>
-    <br/>
 </div>
 
-A library and a framework for synthesizing images containing handwritten music, intended for the creation of training data for OMR models.
+A fork of [Smashcima](https://github.com/OMR-Research/Smashcima), this project enables **synthetic generation of handwritten-style music scores** using **custom symbol images from a local folder** rather than from MUSCIMA++ writers.
 
-**Try out the demo on [🤗 Huggingface Spaces](https://huggingface.co/spaces/Jirka-Mayer/Smashcima) right now!**<br/>
-Example output with MUSCIMA++ writer no. 28 style:
+---
 
-<img src="docs/assets/readme-example.jpg"><br/>
+## 🔍 Key Features
 
-**Install from [pypi](https://pypi.org/project/smashcima/) with:**
+- ✅ Render synthetic handwritten musical scores using your own collection of musical symbols.
+- ✅ Choose between the **Base** and **Tweaked** generation models.
+- ✅ Automatically renders and saves each score page as a `.png` image.
+- ✅ Processes batches of MusicXML files from a folder.
 
-```bash
-pip install smashcima
-```
+---
 
+## 📦 Installation
 
-## Getting started
-
-To quickly learn how to start using Smashcima for your project, start with the tutorials:
-
-1. [Producing music notation images](docs/tutorials/1-producing-music-notation-images.md)
-2. [Changing background texture](docs/tutorials/2-changing-background-texture.md)
-3. [Using custom glyphs](docs/tutorials/3-using-custom-glyphs.md)
-
-
-## How it works
-
-Smashcima is primarily a framework and a set of crafted interfaces for building custom visual-data related synthesizers.
-
-
-- [Introduction](docs/introduction.md)
-- Models and service orchestration
-- Scene
-    - Scene objects
-    - Affine spaces and rendering
-    - Semantic music scene objects
-    - Visual music scene objects
-- Synthesis
-    - Synthesizer interfaces
-    - Glyphs
-    - Style control
-- Asset bundles
-- ...
-
-If you feel like improving the library, take a look at the [TODO List](docs/todo-list.md).
-
-
-## After cloning
-
-Create a virtual environment and install dependencies:
+Clone this repository and install dependencies inside a virtual environment:
 
 ```bash
+git clone https://github.com/your-username/custom-smashcima.git
+cd custom-smashcima
+
 python3 -m venv .venv
-.venv/bin/pip3 install -e .
+source .venv/bin/activate
+pip install -e .
 
-# to run jupyter notebooks:
-.venv/bin/pip3 install -e .[jupyter]
+```
+---
 
-# to run the gradio demo:
-.venv/bin/pip3 install -e .[gradio]
+## 🚀 Usage
+
+You can run the `generate_partitures.py` script to synthesize handwritten scores using either the base or tweaked rendering model.
+
+```bash
+python generate_partitures.py base /path/to/musicxml_folder /path/to/output_folder
 ```
 
+### Arguments:
 
-## Checklists
+- `model_type`: `base` or `tweaked` – which model to use for rendering.
+- `input_path`: Directory containing `.musicxml` files.
+- `output_path`: Directory where the output `.png` images will be saved.
 
-- [Before commit](docs/checklists/before-commit.md)
-- [Publishing to PyPI](docs/checklists/publishing-to-pypi.md)
-- [Deploying Gradio Demo](docs/checklists/deploying-gradio-demo.md)
+Each `.musicxml` file in the input folder will be rendered and saved as a `.png` file in the output folder.
 
+---
 
-## Acknowledgement
+## 🧠 How This Differs From Original Smashcima
 
-There's a publication being written. Until then, you can cite the original Mashcima paper:
+- ✂️ **MUSCIMA++ dependency removed:** You can now render using your own glyph images.
+- 📂 **Batch processing of MusicXML files:** Feed in a folder of MusicXML files.
+- ⚙️ **Minimal CLI interface:** Easily select rendering model and input/output folders.
 
-> Jiří Mayer and Pavel Pecina. Synthesizing Training Data for Handwritten Music Recognition. *16th International Conference on Document Analysis and Recognition, ICDAR 2021.* Lausanne, September 8-10, pp. 626-641, 2021.
+---
+  
+## 📚 References & Acknowledgements
 
+This work is based on [Smashcima](https://github.com/OMR-Research/Smashcima), originally developed by:
 
-## Contact
+> Jiří Mayer and Pavel Pecina. *Synthesizing Training Data for Handwritten Music Recognition*. 16th International Conference on Document Analysis and Recognition, ICDAR 2021.
 
-<img src="https://ufal.mff.cuni.cz/~hajicj/2024/images/logo-large.png" width="600px">
+---
 
-Developed and maintained by [Jiří Mayer](https://ufal.mff.cuni.cz/jiri-mayer) ([mayer@ufal.mff.cuni.cz](mailto:mayer@ufal.mff.cuni.cz)) as part of the [Prague Music Computing Group](https://ufal.mff.cuni.cz/pmcg) lead by [Jan Hajič jr.](https://ufal.mff.cuni.cz/jan-hajic-jr) ([hajicj@ufal.mff.cuni.cz](mailto:hajicj@ufal.mff.cuni.cz)).
+## 📝 License
+
+This project remains licensed under the [Apache License 2.0](https://github.com/OMR-Research/Smashcima/blob/main/LICENSE), following the terms of the original Smashcima repository.
+
+---
+
+## 👥 Contact
+
+For contributions, questions, or bug reports, feel free to open an issue or reach out to the upstream maintainers via [Smashcima's GitHub](https://github.com/OMR-Research/Smashcima).
+
