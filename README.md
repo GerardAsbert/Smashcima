@@ -28,12 +28,10 @@ A fork of [Smashcima](https://github.com/OMR-Research/Smashcima), this project e
 Clone this repository and install dependencies inside a virtual environment:
 
 ```bash
-git clone https://github.com/your-username/custom-smashcima.git
-cd custom-smashcima
+git clone https://github.com/GerardAsbert/Smashcima.git
+cd Smashcima
 
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
+pip install -r requirements.txt
 
 ```
 ---
